@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_rest_api/model/user.dart';
 import 'package:http/http.dart' as http;
 
 class HomeScreen extends StatefulWidget {
@@ -11,7 +12,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  List<dynamic> users = [];
+  List<User> users = [];
 
   @override
   void initState() {
@@ -26,9 +27,23 @@ class _HomeScreenState extends State<HomeScreen> {
     final response = await http.get(uri);
     final body = response.body;
     final json = jsonDecode(body);
+    final results = json['results'] as List<dynamic>;
+    final transformed = results.map((e) {
+      final name = UserName(
+          title: e['name']['title'],
+          first: e['name']['first'],
+          last: e['name']['last']);
+      return User(
+          gender: e['gender'],
+          email: e['email'],
+          phone: e['phone'],
+          cell: e['cell'],
+          nat: e['nat'],
+          name: name);
+    }).toList();
     if (response.statusCode == 200) {
       setState(() {
-        users = json['results'];
+        users = transformed;
       });
       print('fetchUser completed');
     } else
@@ -51,16 +66,12 @@ class _HomeScreenState extends State<HomeScreen> {
           itemCount: users.length,
           itemBuilder: (context, index) {
             final user = users[index];
-            final name = user['name']['first'];
-            final email = user['email'];
-            final imageUrl = user['picture']['thumbnail'];
+            final color = user.gender == 'male' ? Colors.blue : Colors.amber;
+
             return ListTile(
-              leading: ClipRRect(
-                borderRadius: BorderRadius.circular(100),
-                child: Image.network(imageUrl),
-              ),
-              title: Text(name.toString()),
-              subtitle: Text(email),
+              title: Text(user.name.first),
+              subtitle: Text(user.phone),
+              tileColor: color,
             );
           }),
       floatingActionButton: FloatingActionButton(
