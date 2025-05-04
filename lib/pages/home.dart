@@ -1,8 +1,6 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_rest_api/model/user.dart';
-import 'package:http/http.dart' as http;
+import 'package:flutter_rest_api/services/user_api.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -20,34 +18,11 @@ class _HomeScreenState extends State<HomeScreen> {
     fetchUsers();
   }
 
-  void fetchUsers() async {
-    print("fetchUsers call");
-    const url = 'https://randomuser.me/api/?results=100';
-    final uri = Uri.parse(url);
-    final response = await http.get(uri);
-    final body = response.body;
-    final json = jsonDecode(body);
-    final results = json['results'] as List<dynamic>;
-    final transformed = results.map((e) {
-      final name = UserName(
-          title: e['name']['title'],
-          first: e['name']['first'],
-          last: e['name']['last']);
-      return User(
-          gender: e['gender'],
-          email: e['email'],
-          phone: e['phone'],
-          cell: e['cell'],
-          nat: e['nat'],
-          name: name);
-    }).toList();
-    if (response.statusCode == 200) {
-      setState(() {
-        users = transformed;
-      });
-      print('fetchUser completed');
-    } else
-      print('fail');
+  Future<void> fetchUsers() async {
+    final response = await UserApi.fetchUsers();
+    setState(() {
+      users = response;
+    });
   }
 
   @override
@@ -66,20 +41,14 @@ class _HomeScreenState extends State<HomeScreen> {
           itemCount: users.length,
           itemBuilder: (context, index) {
             final user = users[index];
-            final color = user.gender == 'male' ? Colors.blue : Colors.amber;
+            // final color = user.gender == 'male' ? Colors.blue : Colors.amber;
 
             return ListTile(
-              title: Text(user.name.first),
+              title: Text(user.fullName),
               subtitle: Text(user.phone),
-              tileColor: color,
+              // tileColor: color,
             );
           }),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.blue,
-        hoverColor: Colors.amber,
-        onPressed: fetchUsers,
-        child: const Icon(Icons.refresh),
-      ),
     );
   }
 }
