@@ -60,7 +60,9 @@ class LocationCoordinates {
 
   factory LocationCoordinates.fromMap(Map<String, dynamic> json) {
     return LocationCoordinates(
-        latitude: json['latitude'], longitude: json['longitude']);
+      latitude: json['latitude'],
+      longitude: json['longitude'],
+    );
   }
 }
 
@@ -74,6 +76,8 @@ class LocationTimezone {
 
   factory LocationTimezone.fromMap(Map<String, dynamic> json) {
     return LocationTimezone(
-        offset: json['offset'], description: json['description']);
+      offset: json['offset'],
+      description: json['description'],
+    );
   }
 }
